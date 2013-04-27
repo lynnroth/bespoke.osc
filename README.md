@@ -4,7 +4,7 @@ Created by [Paul Varcholik](http://www.bespokesoftware.org/)
 
 "Open Sound Control (Osc) is an open, transport-independent, message-based protocol developed for communication among computers, sound synthesizers, and other multimedia devices." (from [http://opensoundcontrol.org/spec-1_0](http://opensoundcontrol.org/spec-1_0))
 
-There are a number of Osc implementations, including another in C# ([1](http://opensoundcontrol.org/implementation/osc-net-v1-2)), but I decided to roll my own and make it freely available. This implementation sits atop the .NET 4.5 Framework and uses TCP or UDP as the transport protocol. It includes support for Osc Messages and Bundles, and supports the following payload data types:
+There are a number of Osc implementations, including [another in C#](http://opensoundcontrol.org/implementation/osc-net-v1-2), but I decided to roll my own and make it freely available. This implementation sits atop the .NET 4.5 Framework and uses TCP or UDP as the transport protocol. It includes support for Osc Messages and Bundles, and supports the following payload data types:
 
 * Int32
 * Int64
