@@ -181,6 +181,19 @@ namespace Bespoke.Common.Osc
 		{
 		}
 
+        /// <summary>
+        /// Creates a new instance of OscServer.
+        /// </summary>
+        /// <param name="ipAddress">The local IP address to bind to.</param>
+        /// <param name="port">The UDP port to bind to.</param>
+        /// <param name="transmissionType"></param>
+        /// <param name="consumeParsingExceptions">Specifies the behavior of handling parsing exceptions.</param>
+        /// <remarks>Use this constructor for TransportType.Udp, and any TransmissionType except Multicast.</remarks>
+        public OscServer(IPAddress ipAddress, int port, TransmissionType transmissionType, bool consumeParsingExceptions = true)
+            : this(TransportType.Udp, ipAddress, port, null, transmissionType, consumeParsingExceptions)
+        {
+        }
+
 		/// <summary>
 		/// Creates a new instance of OscServer.
 		/// </summary>

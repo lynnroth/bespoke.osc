@@ -14,7 +14,7 @@ namespace Transmitter
             Assert.ParamIsNotNull(packet);
 
             mPacket = packet;
-            OscPacket.UdpClient= new UdpClient(SourcePort);
+            OscPacket.UdpClient = new UdpClient(SourcePort);
             mSendMessages = true;
 
             mTransmitterThread = new Thread(RunWorker);
