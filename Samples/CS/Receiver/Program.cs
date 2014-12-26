@@ -55,10 +55,12 @@ namespace Receiver
 
         private static DemoType GetDemoType()
         {
-            Dictionary<ConsoleKey, DemoType> keyMappings = new Dictionary<ConsoleKey, DemoType>();
-            keyMappings.Add(ConsoleKey.D1, DemoType.Udp);
-            keyMappings.Add(ConsoleKey.D2, DemoType.Tcp);
-            keyMappings.Add(ConsoleKey.D3, DemoType.Multicast);
+            Dictionary<ConsoleKey, DemoType> keyMappings = new Dictionary<ConsoleKey, DemoType>()
+            {
+                { ConsoleKey.D1, DemoType.Udp },
+                { ConsoleKey.D2, DemoType.Tcp },
+                { ConsoleKey.D3, DemoType.Multicast }
+            };
 
             Console.WriteLine("\nWelcome to the Bespoke Osc Receiver Demo.\nPlease select the type of receiver you would like to use:");
             Console.WriteLine("  1. Udp\n  2. Tcp\n  3. Udp Multicast");

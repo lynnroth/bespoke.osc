@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 using Bespoke.Common;
@@ -12,36 +13,39 @@ namespace Transmitter
         public void Start(OscPacket packet)
         {
             Assert.ParamIsNotNull(packet);
-
-            mPacket = packet;
             OscPacket.UdpClient = new UdpClient(SourcePort);
-            mSendMessages = true;
 
-            mTransmitterThread = new Thread(RunWorker);
-            mTransmitterThread.Start();
+            mCancellationTokenSource = new CancellationTokenSource();
+            mSendPacketsTask = Task.Run(() => SendPacketsAsync(packet, mCancellationTokenSource.Token));
         }
 
         public void Stop()
         {
-            mSendMessages = false;
-            mTransmitterThread.Join();
+            mCancellationTokenSource.Cancel();
+            mSendPacketsTask.Wait();
         }
 
-        private void RunWorker()
+        public void Dispose()
+        {
+            mCancellationTokenSource.Dispose();
+        }
+
+        private async Task SendPacketsAsync(OscPacket packet, CancellationToken cancellationToken)
         {
             try
             {
-                while (mSendMessages)
-                {
-                     mPacket.Send(Destination);
+                int transmissionCount = 0;
 
-                    mTransmissionCount++;
+                while (cancellationToken.IsCancellationRequested == false)
+                {
+                    packet.Send(Destination);
+
                     Console.Clear();
                     Console.WriteLine("Osc Transmitter: Udp");
-                    Console.WriteLine("Transmission Count: {0}\n", mTransmissionCount);
+                    Console.WriteLine("Transmission Count: {0}\n", ++transmissionCount);
                     Console.WriteLine("Press any key to exit.");
 
-                    Thread.Sleep(1000);
+                    await Task.Delay(1000);
                 }
             }
             catch (Exception ex)
@@ -53,9 +57,7 @@ namespace Transmitter
         private static readonly IPEndPoint Destination = new IPEndPoint(IPAddress.Loopback, Program.Port);
         private static readonly int SourcePort = 10024;
 
-        private volatile bool mSendMessages;
-        private Thread mTransmitterThread;
-        private OscPacket mPacket;
-        private int mTransmissionCount;
+        private CancellationTokenSource mCancellationTokenSource;
+        private Task mSendPacketsTask;
     }
 }

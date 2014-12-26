@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Net;
 using Bespoke.Common;
 using Bespoke.Common.Osc;
@@ -12,34 +13,37 @@ namespace Transmitter
         {
             Assert.ParamIsNotNull(packet);
 
-            mPacket = packet;
-            mSendMessages = true;
-
-            mTransmitterThread = new Thread(RunWorker);
-            mTransmitterThread.Start();
+            mCancellationTokenSource = new CancellationTokenSource();
+            mSendPacketsTask = Task.Run(() => SendPacketsAsync(packet, mCancellationTokenSource.Token));
         }
 
         public void Stop()
         {
-            mSendMessages = false;
-            mTransmitterThread.Join();
+            mCancellationTokenSource.Cancel();
+            mSendPacketsTask.Wait();
         }
 
-        private void RunWorker()
+        public void Dispose()
+        {
+            mCancellationTokenSource.Dispose();
+        }
+
+        private async Task SendPacketsAsync(OscPacket packet, CancellationToken cancellationToken)
         {
             try
             {
-                while (mSendMessages)
-                {
-                    mPacket.Send(Destination);
+                int transmissionCount = 0;
 
-                    mTransmissionCount++;
+                while (cancellationToken.IsCancellationRequested == false)
+                {
+                    packet.Send(Destination);
+
                     Console.Clear();
                     Console.WriteLine("Osc Transmitter: Multicast");
-                    Console.WriteLine("Transmission Count: {0}\n", mTransmissionCount);
+                    Console.WriteLine("Transmission Count: {0}\n", ++transmissionCount);
                     Console.WriteLine("Press any key to exit.");
 
-                    Thread.Sleep(1000);
+                    await Task.Delay(1000);
                 }
             }
             catch (Exception ex)
@@ -50,9 +54,7 @@ namespace Transmitter
 
         private static readonly IPEndPoint Destination = new IPEndPoint(IPAddress.Parse("224.25.26.27"), Program.Port);
 
-        private volatile bool mSendMessages;
-        private Thread mTransmitterThread;
-        private OscPacket mPacket;
-        private int mTransmissionCount;
+        private CancellationTokenSource mCancellationTokenSource;
+        private Task mSendPacketsTask;
     }
 }

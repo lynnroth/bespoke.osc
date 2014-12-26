@@ -20,29 +20,17 @@ namespace Transmitter
 
         public static void Main(string[] args)
         {
-            OscBundle bundle = CreateTestBundle();
+            Dictionary<DemoType, Type> transmitters = new Dictionary<DemoType, Type>()
+            {
+                { DemoType.Udp, typeof(UdpTransmitter) },
+                { DemoType.Tcp, typeof(TcpTransmitter) },
+                { DemoType.Multicast, typeof(MulticastTransmitter) }
+            };
 
             DemoType demoType = GetDemoType();
+            ITransmitter transmitter = Activator.CreateInstance(transmitters[demoType]) as ITransmitter;
 
-            ITransmitter transmitter;
-            switch (demoType)
-            {
-                case DemoType.Udp:
-                    transmitter = new UdpTransmitter();
-                    break;
-
-                case DemoType.Tcp:
-                    transmitter = new TcpTransmitter();
-                    break;
-
-                case DemoType.Multicast:
-                    transmitter = new MulticastTransmitter();
-                    break;
-
-                default:
-                    throw new Exception("Unsupported transmitter type.");
-            }
-
+            OscBundle bundle = CreateTestBundle();
             transmitter.Start(bundle);
 
             // Stop the transmitter, and exit, when a key is pressed.
@@ -52,10 +40,12 @@ namespace Transmitter
 
         private static DemoType GetDemoType()
         {
-            Dictionary<ConsoleKey, DemoType> keyMappings = new Dictionary<ConsoleKey, DemoType>();
-            keyMappings.Add(ConsoleKey.D1, DemoType.Udp);
-            keyMappings.Add(ConsoleKey.D2, DemoType.Tcp);
-            keyMappings.Add(ConsoleKey.D3, DemoType.Multicast);
+            Dictionary<ConsoleKey, DemoType> keyMappings = new Dictionary<ConsoleKey, DemoType>()
+            {
+                { ConsoleKey.D1, DemoType.Udp },
+                { ConsoleKey.D2, DemoType.Tcp },
+                { ConsoleKey.D3, DemoType.Multicast }
+            };
 
             Console.WriteLine("\nWelcome to the Bespoke Osc Transmitter Demo.\nPlease select the type of transmitter you would like to use:");
             Console.WriteLine("  1. Udp\n  2. Tcp\n  3. Udp Multi-cast");

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Net;
 using Bespoke.Common;
 using Bespoke.Common.Osc;
@@ -14,38 +15,40 @@ namespace Transmitter
 
             mOscClient = new OscClient(Destination);
             mOscClient.Connect();
+            packet.Client = mOscClient;
 
-            mPacket = packet;
-            mPacket.Client = mOscClient;
-            mSendMessages = true;
-
-            mTransmitterThread = new Thread(RunWorker);
-            mTransmitterThread.Start();
+            mCancellationTokenSource = new CancellationTokenSource();
+            mSendPacketsTask = Task.Run(() => SendPacketsAsync(packet, mCancellationTokenSource.Token));
         }
 
         public void Stop()
         {
-            mSendMessages = false;
-            mTransmitterThread.Join();
-
+            mCancellationTokenSource.Cancel();
+            mSendPacketsTask.Wait();
             mOscClient.Close();
         }
 
-        private void RunWorker()
+        public void Dispose()
+        {
+            mCancellationTokenSource.Dispose();
+        }
+
+        private async Task SendPacketsAsync(OscPacket packet, CancellationToken cancellationToken)
         {
             try
             {
-                while (mSendMessages)
-                {
-                    mPacket.Send();
+                int transmissionCount = 0;
 
-                    mTransmissionCount++;
+                while (cancellationToken.IsCancellationRequested == false)
+                {
+                    packet.Send();
+
                     Console.Clear();
                     Console.WriteLine("Osc Transmitter: Tcp");
-                    Console.WriteLine("Transmission Count: {0}\n", mTransmissionCount);
+                    Console.WriteLine("Transmission Count: {0}\n", ++transmissionCount);
                     Console.WriteLine("Press any key to exit.");
 
-                    Thread.Sleep(1000);
+                    await Task.Delay(1000);
                 }
             }
             catch (Exception ex)
@@ -56,10 +59,8 @@ namespace Transmitter
 
         private static readonly IPEndPoint Destination = new IPEndPoint(IPAddress.Loopback, Program.Port);
 
-        private volatile bool mSendMessages;
-        private Thread mTransmitterThread;
-        private OscPacket mPacket;
-        private OscClient mOscClient;
-        private int mTransmissionCount;        
+        private CancellationTokenSource mCancellationTokenSource;
+        private Task mSendPacketsTask;
+        private OscClient mOscClient;    
     }
 }

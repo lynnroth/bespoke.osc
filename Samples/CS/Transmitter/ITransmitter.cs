@@ -4,9 +4,9 @@ using Bespoke.Common.Osc;
 namespace Transmitter
 {
     /// <summary>
-    /// Demo Osc packet Transmitter interface.
+    /// Demo Osc packet transmitter interface.
     /// </summary>
-    public interface ITransmitter
+    public interface ITransmitter : IDisposable
     {
         /// <summary>
         /// Start the transmitter.
