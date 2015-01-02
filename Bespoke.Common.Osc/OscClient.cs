@@ -14,42 +14,24 @@ namespace Bespoke.Common.Osc
         /// <summary>
         /// Gets the IP address of the server-side of the connection.
         /// </summary>
-        public IPAddress ServerIPAddress
-        {
-            get
-            {
-                return mServerIPAddress;
-            }
-        }
+        public IPAddress ServerIPAddress { get; private set; }        
 
         /// <summary>
         /// Gets the port of the server-side of the connection.
         /// </summary>
-        public int ServerPort
-        {
-            get
-            {
-                return mServerPort;
-            }
-        }
+        public int ServerPort { get; private set; }        
 
         /// <summary>
         /// Gets the underlying <see cref="TcpClient"/>.
         /// </summary>
-        public TcpClient Client
-        {
-            get
-            {
-                return mClient;
-            }
-        }
+        public TcpClient Client { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OscClient"/> class.
         /// </summary>
         public OscClient()
         {
-            mClient = new TcpClient();
+            Client = new TcpClient();
         }
 
         /// <summary>
@@ -69,8 +51,8 @@ namespace Bespoke.Common.Osc
         public OscClient(IPAddress serverIPAddress, int serverPort)
             : this()
         {
-            mServerIPAddress = serverIPAddress;
-            mServerPort = serverPort;
+            ServerIPAddress = serverIPAddress;
+            ServerPort = serverPort;
         }
 
         /// <summary>
@@ -78,7 +60,7 @@ namespace Bespoke.Common.Osc
         /// </summary>
         public void Connect()
         {
-            Connect(mServerIPAddress, mServerPort);
+            Connect(ServerIPAddress, ServerPort);
         }
 
         /// <summary>
@@ -97,11 +79,11 @@ namespace Bespoke.Common.Osc
         /// <param name="serverPort">The server-side port to connect to.</param>
         public void Connect(IPAddress serverIPAddress, int serverPort)
         {
-            mServerIPAddress = serverIPAddress;
-            mServerPort = serverPort;
+            ServerIPAddress = serverIPAddress;
+            ServerPort = serverPort;
 
-            mClient.Connect(mServerIPAddress, mServerPort);
-            mTcpConnection = new TcpConnection(mClient.Client, OscPacket.LittleEndianByteOrder);
+            Client.Connect(ServerIPAddress, ServerPort);
+            mTcpConnection = new TcpConnection(Client.Client, OscPacket.LittleEndianByteOrder);
         }
 
         /// <summary>
@@ -111,7 +93,7 @@ namespace Bespoke.Common.Osc
         {
             mTcpConnection.Dispose();
             mTcpConnection = null;
-            mClient.Close();            
+            Client.Close();            
         }
 
         /// <summary>
@@ -124,9 +106,6 @@ namespace Bespoke.Common.Osc
             mTcpConnection.Writer.Write(OscPacket.ValueToByteArray(packetData));
         }
 
-        private IPAddress mServerIPAddress;
-        private int mServerPort;
-        private TcpClient mClient;
         private TcpConnection mTcpConnection;
     }
 }

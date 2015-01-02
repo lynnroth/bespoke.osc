@@ -115,13 +115,14 @@ namespace Bespoke.Common.Osc
             {
                 return true;
             }
-
-            if (((object)lhs == null) || ((object)rhs == null))
+            else if (object.ReferenceEquals(lhs, null) || object.ReferenceEquals(rhs, null))
             {
                 return false;
             }
-
-            return lhs.DateTime == rhs.DateTime;
+            else
+            {
+                return lhs.DateTime == rhs.DateTime;
+            }
         }
 
         /// <summary>
@@ -232,18 +233,14 @@ namespace Bespoke.Common.Osc
         /// <returns>true if value is an instance of System.DateTime and equals the value of this instance; otherwise, false.</returns>
         public override bool Equals(object value)
         {
-            if (value == null)
+            if (value is OscTimeTag)
+            {
+                return (this == (OscTimeTag)value);
+            }
+            else
             {
                 return false;
             }
-
-            OscTimeTag rhs = value as OscTimeTag;
-            if (rhs == null)
-            {
-                return false;
-            }
-
-            return mTimeStamp.Equals(rhs.mTimeStamp);
         }
 
         /// <summary>

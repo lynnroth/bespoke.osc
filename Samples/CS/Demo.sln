@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bespoke.Common", "..\..\Bespoke.Common\Bespoke.Common.csproj", "{F8A1578F-BEBE-4BBE-AB11-A0496BDB746A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bespoke.Common.Osc", "..\..\Bespoke.Common.Osc\Bespoke.Common.Osc.csproj", "{35D30DCB-74D1-40A2-9D22-40E1394FFC09}"

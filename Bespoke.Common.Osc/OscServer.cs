@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using Bespoke.Common.Net;
 
 namespace Bespoke.Common.Osc
@@ -39,59 +40,29 @@ namespace Bespoke.Common.Osc
         /// <summary>
         /// Gets the selected transport type.
         /// </summary>
-        public TransportType TransportType
-        {
-            get
-            {
-                return mTransportType;
-            }
-        }
+        public TransportType TransportType { get; private set; }
 
 		/// <summary>
 		/// Gets the local IP address the server is bound to.
 		/// </summary>
 		/// <remarks>Not used for UDP multicast.</remarks>
-		public IPAddress IPAddress
-		{
-			get
-			{
-				return mIPAddress;
-			}
-		}
+        public IPAddress IPAddress { get; private set; }
 
 		/// <summary>
 		/// Gets the local port number the server is bound to.
 		/// </summary>
-		public int Port
-		{
-			get
-			{
-				return mPort;
-			}
-		}
+        public int Port { get; private set; }
 
         /// <summary>
         /// Gets the local IP endpoint the server is bound to.
         /// </summary>
-        public IPEndPoint IPEndPoint
-        {
-            get
-            {
-                return mIPEndPoint;
-            }
-        }
+        public IPEndPoint IPEndPoint { get; private set; }
 
 		/// <summary>
 		/// (Optional) Gets the multicast IP address the server is a member of.
 		/// </summary>
 		/// <remarks>Not used for UDP unicast.</remarks>
-		public IPAddress MulticastAddress
-		{
-			get
-			{
-				return mMulticastAddress;
-			}
-		}
+        public IPAddress MulticastAddress { get; private set; }		
 
 		/// <summary>
 		/// Gets all registered Osc methods (address patterns).
@@ -107,28 +78,12 @@ namespace Bespoke.Common.Osc
 		/// <summary>
 		/// Specifies if incoming Osc messages should be filtered against the registered methods.
 		/// </summary>
-		public bool FilterRegisteredMethods
-		{
-			get
-			{
-				return mFilterRegisteredMethods;
-			}
-			set
-			{
-				mFilterRegisteredMethods = value;
-			}
-		}
+        public bool FilterRegisteredMethods { get; set; }		
 
 		/// <summary>
 		/// Gets the transmission type being used by the server.
 		/// </summary>
-		public TransmissionType TransmissionType
-		{
-			get
-			{
-				return mTransmissionType;
-			}
-		}
+        public TransmissionType TransmissionType { get; private set; }		
 
         /// <summary>
         /// Gets the status of the server.
@@ -144,17 +99,7 @@ namespace Bespoke.Common.Osc
         /// <summary>
         /// Gets or sets the handling of parsing exceptions.
         /// </summary>
-        public bool ConsumeParsingExceptions
-        {
-            get
-            {
-                return mConsumeParsingExceptions;
-            }
-            set
-            {
-                mConsumeParsingExceptions = value;
-            }
-        }
+        public bool ConsumeParsingExceptions { get; set; }
 
 		/// <summary>
 		/// Creates a new instance of OscServer.
@@ -186,7 +131,7 @@ namespace Bespoke.Common.Osc
         /// </summary>
         /// <param name="ipAddress">The local IP address to bind to.</param>
         /// <param name="port">The UDP port to bind to.</param>
-        /// <param name="transmissionType"></param>
+        /// <param name="transmissionType">The transmission type for the server to use.</param>
         /// <param name="consumeParsingExceptions">Specifies the behavior of handling parsing exceptions.</param>
         /// <remarks>Use this constructor for TransportType.Udp, and any TransmissionType except Multicast.</remarks>
         public OscServer(IPAddress ipAddress, int port, TransmissionType transmissionType, bool consumeParsingExceptions = true)
@@ -212,36 +157,36 @@ namespace Bespoke.Common.Osc
                 throw new InvalidOperationException("TCP must be used with TransmissionType.Unicast.");
             }
 
-            mTransportType = transportType;
-			mIPAddress = ipAddress;
-			mPort = port;
-            mIPEndPoint = new IPEndPoint(ipAddress, port);
-			mTransmissionType = transmissionType;
+            TransportType = transportType;
+			IPAddress = ipAddress;
+			Port = port;
+            IPEndPoint = new IPEndPoint(ipAddress, port);
+			TransmissionType = transmissionType;
 
-			if (mTransmissionType == TransmissionType.Multicast)
+			if (TransmissionType == TransmissionType.Multicast)
 			{
 				Assert.ParamIsNotNull(multicastAddress);
-				mMulticastAddress = multicastAddress;
+				MulticastAddress = multicastAddress;
 			}
 
 			mRegisteredMethods = new List<string>();
-			mFilterRegisteredMethods = true;
-            mConsumeParsingExceptions = consumeParsingExceptions;
+			FilterRegisteredMethods = true;
+            ConsumeParsingExceptions = consumeParsingExceptions;
             
-            switch (mTransportType)
+            switch (TransportType)
             {
                 case TransportType.Udp:
-                    mUdpServer = new UdpServer(mIPAddress, mPort, mMulticastAddress, mTransmissionType);
+                    mUdpServer = new UdpServer(IPAddress, Port, MulticastAddress, TransmissionType);
                     mUdpServer.DataReceived += new EventHandler<UdpDataReceivedEventArgs>(mUdpServer_DataReceived);
                     break;
 
                 case TransportType.Tcp:                   
-                    mTcpServer = new TcpServer(mIPAddress, mPort, true, OscPacket.LittleEndianByteOrder);
+                    mTcpServer = new TcpServer(IPAddress, Port, true, OscPacket.LittleEndianByteOrder);
                     mTcpServer.DataReceived += new EventHandler<TcpDataReceivedEventArgs>(mTcpServer_DataReceived);
                     break;
 
                 default:
-                    throw new InvalidOperationException("Invalid transport type: " + mTransportType.ToString());
+                    throw new InvalidOperationException(string.Format("Invalid transport type: {0}", TransportType));
             }
 		}
 
@@ -253,20 +198,18 @@ namespace Bespoke.Common.Osc
 		{
             mHandleMessages = true;
 
-            switch (mTransportType)
+            switch (TransportType)
             {
                 case TransportType.Udp:
                     mUdpServer.Start();
                     break;
 
                 case TransportType.Tcp:
-                    mTcpServerThread = new Thread(mTcpServer.Start);
-                    mTcpServerThread.Name = "OscServer Thread";
-                    mTcpServerThread.Start();
+                    mTcpServerStartTask = mTcpServer.Start();
                     break;
 
                 default:
-                    throw new InvalidOperationException("Invalid transport type: " + mTransportType.ToString());
+                    throw new InvalidOperationException(string.Format("Invalid transport type: {0}", TransportType));
             }
 		}
 
@@ -277,7 +220,7 @@ namespace Bespoke.Common.Osc
 		{
 			mHandleMessages = false;
 
-            switch (mTransportType)
+            switch (TransportType)
             {
                 case TransportType.Udp:
                     if (mUdpServer != null)
@@ -290,16 +233,12 @@ namespace Bespoke.Common.Osc
                     if (mTcpServer != null)
                     {
                         mTcpServer.Stop();
-                        if (mTcpServerThread != null)
-                        {
-                            mTcpServerThread.Join();
-                            mTcpServerThread = null;
-                        }
+                        mTcpServerStartTask.Wait();
                     }
                     break;
 
                 default:
-                    throw new InvalidOperationException("Invalid transport type: " + mTransportType.ToString());
+                    throw new InvalidOperationException(string.Format("Invalid transport type: {0}", TransportType));
             }
 		}
 
@@ -374,7 +313,7 @@ namespace Bespoke.Common.Osc
                     }
                     else
                     {
-                        if (mFilterRegisteredMethods)
+                        if (FilterRegisteredMethods)
                         {
                             if (mRegisteredMethods.Contains(packet.Address))
                             {
@@ -389,7 +328,7 @@ namespace Bespoke.Common.Osc
                 }
                 catch (Exception ex)
                 {
-                    if (mConsumeParsingExceptions == false)
+                    if (ConsumeParsingExceptions == false)
                     {
                         OnReceiveErrored(ex);
                     }
@@ -431,7 +370,7 @@ namespace Bespoke.Common.Osc
                 {
                     // Raised events for contained messages
                     OscMessage message = (OscMessage)value;
-                    if (mFilterRegisteredMethods)
+                    if (FilterRegisteredMethods)
                     {
                         if (mRegisteredMethods.Contains(message.Address))
                         {
@@ -472,18 +411,10 @@ namespace Bespoke.Common.Osc
 
 		#endregion
 
-        private TransportType mTransportType;
-		private IPAddress mIPAddress;
-		private int mPort;
-        private IPEndPoint mIPEndPoint;
-		private IPAddress mMulticastAddress;
 		private UdpServer mUdpServer;
         private TcpServer mTcpServer;
-        private Thread mTcpServerThread;
+        private Task mTcpServerStartTask;
 		private List<string> mRegisteredMethods;
-		private bool mFilterRegisteredMethods;
-		private TransmissionType mTransmissionType;
-		private volatile bool mHandleMessages;
-        private bool mConsumeParsingExceptions;
+		private volatile bool mHandleMessages;        
 	}
 }

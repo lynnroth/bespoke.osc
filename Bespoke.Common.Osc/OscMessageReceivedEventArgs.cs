@@ -11,15 +11,9 @@ namespace Bespoke.Common.Osc
 		/// <summary>
         /// Gets the <see cref="OscMessage"/> received.
 		/// </summary>
-		public OscMessage Message
-		{
-			get
-			{
-				return mMessage;
-			}
-		}
+		public OscMessage Message { get; private set; }
 
-		/// <summary>
+        /// <summary>
         /// Initializes a new instance of the <see cref="OscMessageReceivedEventArgs"/> class.
 		/// </summary>
         /// <param name="message">The <see cref="OscMessage"/> received.</param>
@@ -27,9 +21,7 @@ namespace Bespoke.Common.Osc
 		{
 			Assert.ParamIsNotNull(message);
 
-			mMessage = message;
+			Message = message;
 		}
-
-		private OscMessage mMessage;
 	}
 }

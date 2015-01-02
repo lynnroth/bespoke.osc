@@ -1,4 +1,4 @@
-Created by [Paul Varcholik](http://www.bespokesoftware.org/)
+Created by [Paul Varcholik](http://www.varcholik.org/)
 
 # Overview
 
@@ -25,7 +25,7 @@ The package includes simple client and server examples in both C# and Visual Bas
 
 # Documentation
 
-[Online Documentation](http://www.bespokesoftware.org/OSC/2.0/doc)
+[Online Documentation](http://www.varcholik.org/OSC/2.0/doc)
 
 # License
 

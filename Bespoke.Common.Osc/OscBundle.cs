@@ -25,13 +25,7 @@ namespace Bespoke.Common.Osc
 		/// <summary>
 		/// Gets the creation time of the bundle.
 		/// </summary>
-		public OscTimeTag TimeStamp
-		{
-			get
-			{
-				return mTimeStamp;
-			}
-		}
+		public OscTimeTag TimeStamp { get; private set; }
 
         /// <summary>
         /// Gets the array of nested bundles.
@@ -92,7 +86,7 @@ namespace Bespoke.Common.Osc
 		public OscBundle(IPEndPoint sourceEndPoint, OscTimeTag timeStamp, OscClient client = null)
 			: base(sourceEndPoint, BundlePrefix, client)
 		{
-			mTimeStamp = timeStamp;
+			TimeStamp = timeStamp;
 		}
 
 		/// <summary>
@@ -106,7 +100,7 @@ namespace Bespoke.Common.Osc
 			data.AddRange(OscPacket.ValueToByteArray(mAddress));
 			OscPacket.PadNull(data);
 
-			data.AddRange(OscPacket.ValueToByteArray(mTimeStamp));
+			data.AddRange(OscPacket.ValueToByteArray(TimeStamp));
 
 			foreach (object value in mData)
 			{
@@ -163,7 +157,7 @@ namespace Bespoke.Common.Osc
             OscBundle nestedBundle = value as OscBundle;
             if (nestedBundle != null)
             {
-                Assert.IsTrue(nestedBundle.mTimeStamp >= mTimeStamp);
+                Assert.IsTrue(nestedBundle.TimeStamp >= TimeStamp);
             }
 
 			mData.Add(value);
@@ -172,7 +166,5 @@ namespace Bespoke.Common.Osc
 		}
 
 		private const string BundlePrefix = "#bundle";
-
-		private OscTimeTag mTimeStamp;
 	}
 }

@@ -19,34 +19,14 @@ namespace Bespoke.Common.Osc
         /// Gets or sets the expected endianness of integral value types.
         /// </summary>
         /// <remarks>Defaults to false (big endian).</remarks>
-        public static bool LittleEndianByteOrder
-        {
-            get
-            {
-                return sLittleEndianByteOrder;
-            }
-            set
-            {
-                sLittleEndianByteOrder = value;
-            }
-        }
+        public static bool LittleEndianByteOrder { get; set; }
 
         /// <summary>
         /// Gets or sets the UDP client used for sending packets with TransportType.Udp.
         /// </summary>
-        /// <<remarks>Unused for Tcp trasport.</remarks>
-        public static UdpClient UdpClient
-        {
-            get
-            {
-                return sUdpClient;
-            }
-            set
-            {
-                sUdpClient = value;
-            }
-        }
-
+        /// <remarks>Unused for Tcp trasport.</remarks>
+        public static UdpClient UdpClient { get; set; }
+        
 		/// <summary>
 		/// Specifies if the packet is an OSC bundle.
 		/// </summary>
@@ -55,13 +35,7 @@ namespace Bespoke.Common.Osc
 		/// <summary>
 		/// Gets the origin of the packet.
 		/// </summary>
-		public IPEndPoint SourceEndPoint
-		{
-			get
-			{
-				return mSourceEndPoint;
-			}
-		}
+        public IPEndPoint SourceEndPoint { get; private set; }
 
 		/// <summary>
 		/// Gets the Osc address pattern.
@@ -94,17 +68,7 @@ namespace Bespoke.Common.Osc
         /// Gets or sets the destination of sent packets when using TransportType.Tcp.
         /// </summary>
         /// <remarks>Unused for Udp transport.</remarks>
-        public OscClient Client
-        {
-            get
-            {
-                return mClient;
-            }
-            set
-            {
-                mClient = value;
-            }
-        }
+        public OscClient Client { get; set; }
 
 		#endregion
 
@@ -113,8 +77,8 @@ namespace Bespoke.Common.Osc
 		/// </summary>
 		static OscPacket()
 		{
-            sLittleEndianByteOrder = false;
-			sUdpClient = new UdpClient();
+            LittleEndianByteOrder = false;
+			UdpClient = new UdpClient();
 		}
 
         /// <summary>
@@ -127,10 +91,11 @@ namespace Bespoke.Common.Osc
         {
             Assert.IsFalse(string.IsNullOrEmpty(address));
 
-            mSourceEndPoint = sourceEndPoint;
-            mAddress = address;
             mData = new List<object>();
-            mClient = client;
+
+            SourceEndPoint = sourceEndPoint;
+            Address = address;            
+            Client = client;
         }
 
 		/// <summary>
@@ -233,7 +198,7 @@ namespace Bespoke.Common.Osc
 		public void Send(IPEndPoint destination)
 		{
 			byte[] data = ToByteArray();
-			sUdpClient.Send(data, data.Length, destination);
+			UdpClient.Send(data, data.Length, destination);
 		}
 
         /// <summary>
@@ -258,9 +223,9 @@ namespace Bespoke.Common.Osc
         /// <exception cref="ArgumentNullException"><see cref="Client"/> is null.</exception>
         public void Send()
         {
-            Assert.ParamIsNotNull(mClient);
+            Assert.ParamIsNotNull(Client);
 
-            mClient.Send(this);
+            Client.Send(this);
         }
 
 		/// <summary>
@@ -347,7 +312,7 @@ namespace Bespoke.Common.Osc
                     byte[] buffer = data.CopySubArray(start, bufferLength);
                     start += buffer.Length;
 
-                    if (BitConverter.IsLittleEndian != sLittleEndianByteOrder)
+                    if (BitConverter.IsLittleEndian != LittleEndianByteOrder)
                     {
                         buffer = Utility.SwapEndian(buffer);
                     }
@@ -400,7 +365,7 @@ namespace Bespoke.Common.Osc
                     case "Int32":
                         {
                             data = BitConverter.GetBytes((int)valueObject);
-                            if (BitConverter.IsLittleEndian != sLittleEndianByteOrder)
+                            if (BitConverter.IsLittleEndian != LittleEndianByteOrder)
                             {
                                 data = Utility.SwapEndian(data);
                             }
@@ -410,7 +375,7 @@ namespace Bespoke.Common.Osc
                     case "Int64":
                         {
                             data = BitConverter.GetBytes((long)valueObject);
-                            if (BitConverter.IsLittleEndian != sLittleEndianByteOrder)
+                            if (BitConverter.IsLittleEndian != LittleEndianByteOrder)
                             {
                                 data = Utility.SwapEndian(data);
                             }
@@ -425,7 +390,7 @@ namespace Bespoke.Common.Osc
                             if (float.IsPositiveInfinity(floatValue) == false)
                             {
                                 data = BitConverter.GetBytes(floatValue);
-                                if (BitConverter.IsLittleEndian != sLittleEndianByteOrder)
+                                if (BitConverter.IsLittleEndian != LittleEndianByteOrder)
                                 {
                                     data = Utility.SwapEndian(data);
                                 }
@@ -436,7 +401,7 @@ namespace Bespoke.Common.Osc
                     case "Double":
                         {
                             data = BitConverter.GetBytes((double)valueObject);
-                            if (BitConverter.IsLittleEndian != sLittleEndianByteOrder)
+                            if (BitConverter.IsLittleEndian != LittleEndianByteOrder)
                             {
                                 data = Utility.SwapEndian(data);
                             }
@@ -508,16 +473,6 @@ namespace Bespoke.Common.Osc
 			}
 		}
 
-        /// <summary>
-        /// The expected endianness of integral value types.
-        /// </summary>
-        protected static bool sLittleEndianByteOrder;
-
-		/// <summary>
-		/// The origin of the packet.
-		/// </summary>
-		protected IPEndPoint mSourceEndPoint;
-
 		/// <summary>
 		/// The OSC address pattern.
 		/// </summary>
@@ -527,15 +482,5 @@ namespace Bespoke.Common.Osc
 		/// The contents of the packet.
 		/// </summary>
 		protected List<object> mData;
-
-        /// <summary>
-        /// The destination of sent packets when using TransportType.Tcp.
-        /// </summary>
-        protected OscClient mClient;
-
-        /// <summary>
-        /// The UDP client for sending datagrams.
-        /// </summary>
-		private static UdpClient sUdpClient;  
 	}
 }

@@ -11,13 +11,7 @@ namespace Bespoke.Common.Osc
 		/// <summary>
         /// Gets the <see cref="OscBundle"/> received.
 		/// </summary>
-		public OscBundle Bundle
-		{
-			get
-			{
-				return mBundle;
-			}
-		}
+        public OscBundle Bundle { get; private set; }
 
 		/// <summary>
         /// Initializes a new instance of the <see cref="OscBundleReceivedEventArgs"/> class.
@@ -27,9 +21,7 @@ namespace Bespoke.Common.Osc
 		{
 			Assert.ParamIsNotNull(bundle);
 
-			mBundle = bundle;
+			Bundle = bundle;
 		}
-
-		private OscBundle mBundle;
 	}
 }

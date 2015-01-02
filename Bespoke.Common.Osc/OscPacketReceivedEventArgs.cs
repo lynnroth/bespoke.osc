@@ -11,13 +11,7 @@ namespace Bespoke.Common.Osc
 		/// <summary>
         /// Gets the <see cref="OscPacket"/> received.
 		/// </summary>
-		public OscPacket Packet
-		{
-			get
-			{
-				return mPacket;
-			}
-		}
+		public OscPacket Packet { get; private set; }
 
 		/// <summary>
         /// Initializes a new instance of the <see cref="OscMessageReceivedEventArgs"/> class.
@@ -27,9 +21,7 @@ namespace Bespoke.Common.Osc
 		{
 			Assert.ParamIsNotNull(packet);
 
-			mPacket = packet;
+			Packet = packet;
 		}
-
-		private OscPacket mPacket;
 	}
 }
