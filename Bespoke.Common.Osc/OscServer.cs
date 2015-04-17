@@ -177,12 +177,12 @@ namespace Bespoke.Common.Osc
             {
                 case TransportType.Udp:
                     mUdpServer = new UdpServer(IPAddress, Port, MulticastAddress, TransmissionType);
-                    mUdpServer.DataReceived += new EventHandler<UdpDataReceivedEventArgs>(mUdpServer_DataReceived);
+                    mUdpServer.DataReceived += mUdpServer_DataReceived;
                     break;
 
                 case TransportType.Tcp:                   
                     mTcpServer = new TcpServer(IPAddress, Port, true, OscPacket.LittleEndianByteOrder);
-                    mTcpServer.DataReceived += new EventHandler<TcpDataReceivedEventArgs>(mTcpServer_DataReceived);
+                    mTcpServer.DataReceived += mTcpServer_DataReceived;
                     break;
 
                 default:
@@ -280,7 +280,7 @@ namespace Bespoke.Common.Osc
 		/// <param name="e">An EventArgs object that contains the event data.</param>
 		private void mUdpServer_DataReceived(object sender, UdpDataReceivedEventArgs e)
 		{
-            DataReceived(e.SourceEndPoint, e.Data);
+            DataReceived(null, e.SourceEndPoint, e.Data);
 		}
 
         /// <summary>
@@ -290,21 +290,27 @@ namespace Bespoke.Common.Osc
         /// <param name="e">An EventArgs object that contains the event data.</param>
         private void mTcpServer_DataReceived(object sender, TcpDataReceivedEventArgs e)
         {
-            DataReceived((IPEndPoint)e.Connection.Client.RemoteEndPoint, e.Data);            
+            DataReceived(e.Connection, (IPEndPoint)e.Connection.Client.RemoteEndPoint, e.Data);            
         }
 
         /// <summary>
         /// Process the data received event.
         /// </summary>
+		/// <param name="connection">The <see cref="TcpConnection" /> object associated with this data.</param>
         /// <param name="sourceEndPoint">The source endpoint.</param>
         /// <param name="data">The received data.</param>
-        private void DataReceived(IPEndPoint sourceEndPoint, byte[] data)
+        private void DataReceived(TcpConnection connection, IPEndPoint sourceEndPoint, byte[] data)
         {
             if (mHandleMessages)
             {
                 try
                 {
                     OscPacket packet = OscPacket.FromByteArray(sourceEndPoint, data);
+					if (TransportType == TransportType.Tcp)
+					{
+						packet.Client = new OscClient(connection);
+					}
+
                     OnPacketReceived(packet);
 
                     if (packet.IsBundle)

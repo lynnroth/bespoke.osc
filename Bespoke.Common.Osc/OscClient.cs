@@ -14,25 +14,44 @@ namespace Bespoke.Common.Osc
         /// <summary>
         /// Gets the IP address of the server-side of the connection.
         /// </summary>
-        public IPAddress ServerIPAddress { get; private set; }        
+        public IPAddress RemoteIPAddress { get; private set; }        
 
         /// <summary>
         /// Gets the port of the server-side of the connection.
         /// </summary>
-        public int ServerPort { get; private set; }        
+        public int RemotePort { get; private set; }        
 
         /// <summary>
-        /// Gets the underlying <see cref="TcpClient"/>.
+        /// Gets the underlying <see cref="TcpConnection"/>.
         /// </summary>
-        public TcpClient Client { get; private set; }
+        public TcpConnection Connection { get; private set; }
+
+		/// <summary>
+		/// Gets ths connected status of the underlying Tcp socket.
+		/// </summary>
+		public bool IsConnected
+		{
+			get
+			{
+				return (Connection != null ? Connection.Client.Connected : false);
+			}
+		}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OscClient"/> class.
         /// </summary>
         public OscClient()
         {
-            Client = new TcpClient();
         }
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="OscClient"/> class.
+		/// </summary>
+		/// <param name="connection">The <see cref="TcpConnection"/> object associated with this instance.</param>
+		public OscClient(TcpConnection connection)
+		{
+			Connection = connection;
+		}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OscClient"/> class.
@@ -51,8 +70,8 @@ namespace Bespoke.Common.Osc
         public OscClient(IPAddress serverIPAddress, int serverPort)
             : this()
         {
-            ServerIPAddress = serverIPAddress;
-            ServerPort = serverPort;
+            RemoteIPAddress = serverIPAddress;
+            RemotePort = serverPort;
         }
 
         /// <summary>
@@ -60,7 +79,7 @@ namespace Bespoke.Common.Osc
         /// </summary>
         public void Connect()
         {
-            Connect(ServerIPAddress, ServerPort);
+            Connect(RemoteIPAddress, RemotePort);
         }
 
         /// <summary>
@@ -79,11 +98,15 @@ namespace Bespoke.Common.Osc
         /// <param name="serverPort">The server-side port to connect to.</param>
         public void Connect(IPAddress serverIPAddress, int serverPort)
         {
-            ServerIPAddress = serverIPAddress;
-            ServerPort = serverPort;
+            RemoteIPAddress = serverIPAddress;
+            RemotePort = serverPort;
 
-            Client.Connect(ServerIPAddress, ServerPort);
-            mTcpConnection = new TcpConnection(Client.Client, OscPacket.LittleEndianByteOrder);
+			if (Connection == null)
+			{
+				TcpClient client = new TcpClient();
+				client.Connect(RemoteIPAddress, RemotePort);
+				Connection = new TcpConnection(client.Client, OscPacket.LittleEndianByteOrder);
+			}
         }
 
         /// <summary>
@@ -91,9 +114,11 @@ namespace Bespoke.Common.Osc
         /// </summary>
         public void Close()
         {
-            mTcpConnection.Dispose();
-            mTcpConnection = null;
-            Client.Close();            
+			if (Connection != null)
+			{
+				Connection.Dispose();
+				Connection = null;
+			}
         }
 
         /// <summary>
@@ -103,9 +128,7 @@ namespace Bespoke.Common.Osc
         public void Send(OscPacket packet)
         {
             byte[] packetData = packet.ToByteArray();
-            mTcpConnection.Writer.Write(OscPacket.ValueToByteArray(packetData));
+			Connection.Writer.Write(OscPacket.ValueToByteArray(packetData));
         }
-
-        private TcpConnection mTcpConnection;
     }
 }
