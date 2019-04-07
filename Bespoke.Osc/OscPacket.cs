@@ -1,17 +1,17 @@
 using System;
-using System.Diagnostics;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Drawing;
+using Bespoke.Common;
 
-namespace Bespoke.Common.Osc
+namespace Bespoke.Osc
 {
-	/// <summary>
-	/// Represents the base unit of transmission for the Open Sound Control protocol.
-	/// </summary>
-	public abstract class OscPacket
+    /// <summary>
+    /// Represents the base unit of transmission for the Open Sound Control protocol.
+    /// </summary>
+    public abstract class OscPacket
 	{
 		#region Properties
 

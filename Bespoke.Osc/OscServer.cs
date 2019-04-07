@@ -1,12 +1,11 @@
 using System;
-using System.Diagnostics;
 using System.Collections.Generic;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
+using Bespoke.Common;
 using Bespoke.Common.Net;
 
-namespace Bespoke.Common.Osc
+namespace Bespoke.Osc
 {
     /// <summary>
 	/// Listens for and processes incoming Open Sound Control packets.

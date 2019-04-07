@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Threading;
 using System.Net;
 using System.Collections.Generic;
 using System.Drawing;
-using Bespoke.Common.Osc;
+using Bespoke.Osc;
 
 namespace Transmitter
 {

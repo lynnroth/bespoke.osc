@@ -11,3 +11,5 @@ Samples/CS/Receiver/bin/
 Bespoke.Common.Osc.Test/bin/
 Bespoke.Common.Osc.Test/obj/
 Help/
+.vs/
+Bespoke.Osc/obj/

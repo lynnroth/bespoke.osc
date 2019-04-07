@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Bespoke.Common;
 
-namespace Bespoke.Common.Osc
+namespace Bespoke.Osc
 {
     /// <summary>
     /// Represents an Osc Time Tag.

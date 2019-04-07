@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using Bespoke.Common.Net;
 
-namespace Bespoke.Common.Osc
+namespace Bespoke.Osc
 {
     /// <summary>
     /// Represents a TCP/IP client-side connection.

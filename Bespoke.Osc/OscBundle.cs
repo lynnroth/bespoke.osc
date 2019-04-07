@@ -1,10 +1,8 @@
-using System;
-using System.Diagnostics;
 using System.Collections.Generic;
 using System.Net;
-using System.Text;
+using Bespoke.Common;
 
-namespace Bespoke.Common.Osc
+namespace Bespoke.Osc
 {
 	/// <summary>
     /// Represents a bundle of <see cref="OscMessage"/> and other <see cref="OscBundle"/> objects.

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 using Bespoke.Common;
-using Bespoke.Common.Osc;
+using Bespoke.Osc;
 
 namespace Transmitter
 {

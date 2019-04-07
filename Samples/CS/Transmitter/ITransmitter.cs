@@ -1,5 +1,5 @@
 ﻿using System;
-using Bespoke.Common.Osc;
+using Bespoke.Osc;
 
 namespace Transmitter
 {

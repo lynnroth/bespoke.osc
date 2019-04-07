@@ -2,7 +2,8 @@
 using System.Net;
 using System.Collections.Generic;
 using Bespoke.Common;
-using Bespoke.Common.Osc;
+using Bespoke.Common.Net;
+using Bespoke.Osc;
 
 namespace Receiver
 {

@@ -2,10 +2,10 @@ using System;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Net;
-using System.Text;
 using System.Drawing;
+using Bespoke.Common;
 
-namespace Bespoke.Common.Osc
+namespace Bespoke.Osc
 {
 	/// <summary>
 	/// Represents an Osc Message packet.

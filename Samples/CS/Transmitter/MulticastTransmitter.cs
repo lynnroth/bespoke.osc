@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Net;
 using Bespoke.Common;
-using Bespoke.Common.Osc;
+using Bespoke.Osc;
 
 namespace Transmitter
 {

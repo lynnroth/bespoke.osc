@@ -1,7 +1,7 @@
 using System;
-using System.Diagnostics;
+using Bespoke.Common;
 
-namespace Bespoke.Common.Osc
+namespace Bespoke.Osc
 {
 	/// <summary>
 	/// Arguments for bundle received events.
